@@ -1,89 +1,22 @@
-# Morpheme Analysis
+# Robust German Morpheme Analyzer
 
-## Development
+Программа Robust German Morpheme Analyzer на языке программирования Python предназначена для автоматизированного
+морфемного анализа немецкого языка, в рамках которого все выявленные языковые единицы сегментируются на корневые
+и аффиксальные морфемы. Такая сегментация позволяет в дальнейшем произвести подсчёт частотности употребления
+указанных единиц в выбранных корпусах, а также получить репрезентативные количественные данные, служащие
+эмпирической основой для дальнейших лингвистических исследований. Для повышения точности анализа именно материала
+на немецком языке в программную среду были интегрированы внешние библиотеки:
 
-Install dependencies and create the local virtual environment:
+* `compound_split` – для сегментации лексических единиц немецкого языка
+* `Hanover Tagger (HanTa)` – для лемматизации семантически значимых морфем немецкого языка.
 
-```bash
-uv sync --dev
-```
+Также была добавлена функция итеративного пополнения корпуса корневых морфем из анализируемых лексических единиц
+выделенных кластеров.
 
-Run tooling through the uv-managed environment:
+В результате становится возможным формирование эмпирической базы лексических единиц на основе входного
+лексического корпуса - в нашем примере корпус по тематике Nachhaltigkeit - с основными типами морфем:
+префиксы, корневые морфемы, суффиксы, интерфиксы.
 
-```bash
-uv run ruff format .
-uv run ruff check .
-uv run basedpyright --project .
-uv run pytest
-```
+# Разработка и запуск программы
 
-## Run Configurations
-
-### Current Analyzer
-
-```bash
-PYTHONUNBUFFERED=1 uv run morpheme-analysis analyze current
-```
-
-Runs the current morpheme analyzer against the no-subcluster input files under
-`data/inputs_no_subcluster_names/`.
-
-Outputs:
-
-- `results/roots/ecology_new_roots.csv`
-- `results/roots/economy_new_roots.csv`
-- `results/roots/sociology_new_roots.csv`
-- `results/roots/all_sources_new_roots.csv`
-
-### Analyzer V1
-
-```bash
-PYTHONUNBUFFERED=1 uv run morpheme-analysis analyze v1
-```
-
-Runs the first analyzer variant over the files in `data/inputs/`.
-
-Outputs per-input CSVs under `results/morphology_stats_v1/`, plus
-`results/morphology_stats_v1/all_sources.csv`.
-
-### Analyzer V2
-
-```bash
-PYTHONUNBUFFERED=1 uv run morpheme-analysis analyze v2
-```
-
-Runs the second analyzer variant over the files in `data/inputs/`, then aggregates
-ecology, economy, sociology, and full-corpus results.
-
-Outputs per-input CSVs and aggregate CSVs under `results/morphology_stats/`.
-
-### Frequency Counting
-
-```bash
-PYTHONUNBUFFERED=1 uv run morpheme-analysis frequencies --limit 4
-```
-
-Runs root-frequency counting. It reads transcript text files from `data/transcripts/`
-and root CSVs from `results/roots/`.
-
-Outputs frequency CSVs in `results/frequency_count/` for ecology, economy, and
-sociology.
-
-### Split Diagnostic
-
-```bash
-PYTHONUNBUFFERED=1 uv run morpheme-analysis diagnostic split
-```
-
-Runs the split diagnostic script PyCharm was configured for. This is not a proper
-pytest assertion suite yet; it prints expected and actual values and reports `PASS` or
-`FAIL` manually.
-
-### Midword Diagnostic
-
-```bash
-PYTHONUNBUFFERED=1 uv run morpheme-analysis diagnostic midword
-```
-
-Runs the midword chunk diagnostic script. Like the split diagnostic, it is print-based
-and not a proper pytest assertion suite yet.
+Для запуска программы на уже имеющихся данных, смотрите [DEVELOPMENT.md](DEVELOPMENT.md).
