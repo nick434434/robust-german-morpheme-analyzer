@@ -1,0 +1,3 @@
+Schadstoffemissinen -> Schadstoffemissionen
+Landsachaftsentwicklung -> Landschaftsentwicklung
+Ressorcenverbrauch -> Ressourcenverbrauch

@@ -1,0 +1,107 @@
+[project]
+name = "morpheme-analysis"
+version = "0.1.0"
+description = "German morpheme analysis scripts and supporting datasets."
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "compound-split==1.0.2",
+    "HanTa==1.1.2",
+    "numpy==2.4.1",
+    "ordered-set==4.1.0",
+]
+
+[dependency-groups]
+dev = [
+    "basedpyright",
+    "pytest",
+    "ruff",
+]
+
+[tool.uv]
+package = false
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+extend-exclude = [
+    "*.csv",
+    "*.txt",
+    "*.zip",
+    "frequency_count/*.csv",
+    "inputs",
+    "inputs_no_subclaster_names",
+    "morphology_stats",
+    "morphology_stats_no_subclaster_names",
+    "morphology_stats_v1",
+    "morphology_stats_v2",
+]
+
+[tool.ruff.lint]
+select = [
+    "A",
+    "B",
+    "C4",
+    "E",
+    "F",
+    "I",
+    "N",
+    "PERF",
+    "PIE",
+    "PL",
+    "RET",
+    "RUF",
+    "SIM",
+    "UP",
+    "W",
+]
+ignore = [
+    "PLR0912", # Existing analysis functions have several linguistic branches.
+    "PLR0915", # Keep initial linting useful before refactoring large scripts.
+    "PLR2004", # Numeric linguistic thresholds are acceptable in this prototype.
+    "RUF001",  # Cyrillic input filenames are intentional in this project.
+]
+
+[tool.ruff.lint.per-file-ignores]
+"main_v*.py" = [
+    "F841",
+]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+line-ending = "lf"
+
+[tool.basedpyright]
+pythonVersion = "3.12"
+typeCheckingMode = "standard"
+include = [
+    "*.py",
+    "frequency_count/*.py",
+]
+exclude = [
+    "**/__pycache__",
+    ".venv",
+    "inputs",
+    "inputs_no_subclaster_names",
+    "morphology_stats",
+    "morphology_stats_no_subclaster_names",
+    "morphology_stats_v1",
+    "morphology_stats_v2",
+]
+reportAny = false
+reportExplicitAny = false
+reportImplicitOverride = false
+reportMissingTypeStubs = false
+reportUnknownArgumentType = false
+reportUnknownMemberType = false
+reportUnknownParameterType = false
+reportUnknownVariableType = false
+
+[tool.pytest.ini_options]
+python_files = [
+    "test_*.py",
+]
+testpaths = [
+    ".",
+]

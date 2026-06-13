@@ -1,0 +1,10 @@
+Ausdauer, Durchhaltevermögen, Langmut, Unermüdigkeit,
+Atlas, Durchhaltevermögen, Gigant, Goliath, Herkules,
+Hüne, Kraftmensch, Muskelkraft, Stärke, Übermensch,
+Wettkämpfer, Widerstandsfähigkeit,
+Auferstehung, Phönix aus der Asche, Reinkarnation,
+Seelenwanderung, Weiterbestehen, Weitergehen, Weiterleben,
+Festigkeit, Härte, Heftigkeit, Unbiegsamkeit, Zähigkeit,
+Betreuung, Denkmalliste, Denkmalpflege, Denkmalschutz,
+Existenzsicherung, Pflege, Unterstützung, Zukunftssicherung,
+Gewohnheit, Routine, Schematismus, Wiederkehr
