@@ -50,12 +50,7 @@ pip-delete-this-directory.txt
 .ipynb_checkpoints/
 
 # IDE and editor files
-.idea/vcs.xml
-.idea/workspace.xml
-.idea/shelf/
-.idea/httpRequests/
-.idea/dataSources/
-.idea/dataSources.local.xml
+.idea/
 .vscode/
 *.swp
 *.swo
