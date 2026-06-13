@@ -1,6 +1,6 @@
-from collections import defaultdict
-import re
 import csv
+import re
+from collections import defaultdict
 
 try:
     from .paths import FREQUENCY_RESULTS_DIR, ROOTS_RESULTS_DIR, TRANSCRIPTS_DIR
@@ -57,7 +57,7 @@ def run_frequency_count(limit: int = 4):
 
     transcript_texts = {}
     for transcript_name, transcript_path in transcripts.items():
-        with open(transcript_path, "r", encoding="utf-8") as f:
+        with open(transcript_path, encoding="utf-8") as f:
             transcript_texts[transcript_name] = f.read()
 
     roots_by_sphere = {

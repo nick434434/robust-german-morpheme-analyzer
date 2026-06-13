@@ -4,15 +4,13 @@ Copyright (c) O. Teselkina, N. Kovalev
 24.01.2026
 """
 
-import re
 import csv
-from collections import defaultdict, Counter
-
-from ordered_set import OrderedSet
+import re
+from collections import Counter, defaultdict
 
 from compound_split import char_split
-
 from HanTa import HanoverTagger as ht
+from ordered_set import OrderedSet
 
 try:
     from .paths import INPUTS_NO_SUBCLUSTER_DIR, ROOTS_RESULTS_DIR
@@ -120,7 +118,6 @@ class GermanMorphemeAnalyzer:
             "los",
             "lich",
             "ig",
-            "en",
             "ern",
             "iv",
             "al",
@@ -418,7 +415,7 @@ class GermanMorphemeAnalyzer:
         midchunk_prefixes = []
         midchunk_suffixes = []
         midchunk_interfixes = []
-        for i in range(0, len(sorted_starts) - 1):
+        for i in range(len(sorted_starts) - 1):
             midchunk = word_lower[sorted_ends[i] : sorted_starts[i + 1]]
             pre, inter, suf = self.split_midword_chunk(midchunk)
             midchunk_prefixes.extend(pre)
@@ -518,7 +515,7 @@ class GermanMorphemeAnalyzer:
                 if len(word) > len(root):
                     if word.startswith(root):
                         return [], [(root.capitalize(), "Root")], [(word[len(root) :], "Suffix")]
-                    elif word.endswith(root):
+                    if word.endswith(root):
                         return [(word[: -len(root)], "Prefix")], [(root.capitalize(), "Root")], []
                 return [], [(root.capitalize(), "Root")], []
 
@@ -715,7 +712,7 @@ def run_analysis():
         input_path = INPUTS_NO_SUBCLUSTER_DIR / f"{input_name}.txt"
         output_path = ROOTS_RESULTS_DIR / output_name
 
-        with open(input_path, "r", encoding="utf-8") as f:
+        with open(input_path, encoding="utf-8") as f:
             text = f.read()
             analyzer.process_text(text)
             analyzer.export_csv(output_path)

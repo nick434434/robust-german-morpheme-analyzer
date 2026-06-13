@@ -1,9 +1,8 @@
-import re
 import csv
-from collections import defaultdict, Counter
+import re
+from collections import Counter, defaultdict
 
 from compound_split import char_split
-
 from HanTa import HanoverTagger as ht
 
 try:
@@ -107,7 +106,6 @@ class GermanMorphemeAnalyzer:
             "los",
             "lich",
             "ig",
-            "en",
             "ern",
             "iv",
             "al",
@@ -182,7 +180,6 @@ class GermanMorphemeAnalyzer:
             "logie",
             "bio",
             "technik",
-            "auto",
             "mobil",
             "telefon",
             "buch",
@@ -213,7 +210,7 @@ class GermanMorphemeAnalyzer:
 
     def load_dictionary(self, path):
         try:
-            with open(path, "r", encoding="utf-8") as f:
+            with open(path, encoding="utf-8") as f:
                 for line in f:
                     word = line.strip().lower()
                     if len(word) > 2:
@@ -235,7 +232,7 @@ class GermanMorphemeAnalyzer:
 
         # Base Case: If the stem is in our dictionary, it's a Root.
         if stem_lower in self.known_roots:
-            return
+            return None
 
         # Recursive Step: Try to split
         best_split = None
@@ -267,7 +264,7 @@ class GermanMorphemeAnalyzer:
                                 return +sub_analysis_ifix
 
         # Fallback: If no split found, treat as Unknown Root (or valid root missing from dict)
-        return
+        return None
 
     def analyze_word(
         self, original_word
@@ -384,7 +381,7 @@ def run_analysis():
         output_path = MORPHOLOGY_STATS_DIR / f"{filename}.csv"
 
         print(f"Reading {input_path}...")
-        with open(input_path, "r", encoding="utf-8") as f:
+        with open(input_path, encoding="utf-8") as f:
             text = f.read()
             full_corpus += text
             ecology_sphere = ecology_sphere + (text if counter < 4 else "")
