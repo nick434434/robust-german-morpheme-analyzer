@@ -13,6 +13,12 @@ from ordered_set import OrderedSet
 from compound_split import char_split
 
 from HanTa import HanoverTagger as ht
+
+try:
+    from .paths import INPUTS_NO_SUBCLUSTER_DIR, ROOTS_RESULTS_DIR
+except ImportError:
+    from paths import INPUTS_NO_SUBCLUSTER_DIR, ROOTS_RESULTS_DIR
+
 tagger = ht.HanoverTagger('morphmodel_ger.pgz')
 
 
@@ -545,31 +551,26 @@ class GermanMorphemeAnalyzer:
         self.stats = defaultdict(Counter)
 
 
+def run_analysis():
+    analyzer = GermanMorphemeAnalyzer()
+    ROOTS_RESULTS_DIR.mkdir(parents=True, exist_ok=True)
+
+    for input_name, output_name in [
+        ("ecology", "ecology_new_roots.csv"),
+        ("economy", "economy_new_roots.csv"),
+        ("sociology", "sociology_new_roots.csv"),
+        ("all_sources", "all_sources_new_roots.csv"),
+    ]:
+        input_path = INPUTS_NO_SUBCLUSTER_DIR / f"{input_name}.txt"
+        output_path = ROOTS_RESULTS_DIR / output_name
+
+        with open(input_path, "r", encoding="utf-8") as f:
+            text = f.read()
+            analyzer.process_text(text)
+            analyzer.export_csv(output_path)
+            analyzer.clean_stats()
+
+
 # --- Execution ---
 if __name__ == "__main__":
-    # Initialize
-    analyzer = GermanMorphemeAnalyzer()
-
-    with open("inputs_no_subclaster_names/ecology.txt", "r", encoding="utf-8") as f:
-        ecology_sphere = f.read()
-        analyzer.process_text(ecology_sphere)
-        analyzer.export_csv(f"ecology_new_roots.csv")
-        analyzer.clean_stats()
-
-    with open("inputs_no_subclaster_names/economy.txt", "r", encoding="utf-8") as f:
-        economy_sphere = f.read()
-        analyzer.process_text(economy_sphere)
-        analyzer.export_csv(f"economy_new_roots.csv")
-        analyzer.clean_stats()
-
-    with open("inputs_no_subclaster_names/sociology.txt", "r", encoding="utf-8") as f:
-        sociology_sphere = f.read()
-        analyzer.process_text(sociology_sphere)
-        analyzer.export_csv(f"sociology_new_roots.csv")
-        analyzer.clean_stats()
-
-    with open("inputs_no_subclaster_names/all_sources.txt", "r", encoding="utf-8") as f:
-        full_corpus = f.read()
-        analyzer.process_text(full_corpus)
-        analyzer.export_csv(f"all_sources_new_roots.csv")
-        analyzer.clean_stats()
+    run_analysis()

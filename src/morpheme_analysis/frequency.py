@@ -2,6 +2,11 @@ from collections import defaultdict
 import re
 import csv
 
+try:
+    from .paths import FREQUENCY_RESULTS_DIR, ROOTS_RESULTS_DIR, TRANSCRIPTS_DIR
+except ImportError:
+    from paths import FREQUENCY_RESULTS_DIR, ROOTS_RESULTS_DIR, TRANSCRIPTS_DIR
+
 
 def count_root_frequencies(text: str, roots: list[str]):
     """
@@ -37,37 +42,42 @@ def load_roots_from_csv(file_path: str, limit: int | None = None) -> list[str]:
     return roots
 
 
-if __name__ == "__main__":
-    with open("5_эпизодов_2022.txt", "r") as f:
-        text_5 = f.read()
-    with open("7_эпизодов_2022.txt", "r") as f:
-        text_7 = f.read()
-    with open("Все_эпизоды_C&R.txt", "r") as f:
-        text_CR = f.read()
+def run_frequency_count(limit: int = 4):
+    FREQUENCY_RESULTS_DIR.mkdir(parents=True, exist_ok=True)
 
-    all_roots = load_roots_from_csv("../all_sources_new_roots.csv")
+    transcripts = {
+        "text_5": TRANSCRIPTS_DIR / "5_эпизодов_2022.txt",
+        "text_7": TRANSCRIPTS_DIR / "7_эпизодов_2022.txt",
+        "text_CR": TRANSCRIPTS_DIR / "Все_эпизоды_C&R.txt",
+    }
 
-    limit = 4
+    transcript_texts = {}
+    for transcript_name, transcript_path in transcripts.items():
+        with open(transcript_path, "r", encoding="utf-8") as f:
+            transcript_texts[transcript_name] = f.read()
 
-    economy = load_roots_from_csv("../economy_new_roots.csv", limit=limit)
-    ecology = load_roots_from_csv("../ecology_new_roots.csv", limit=limit)
-    sociology = load_roots_from_csv("../sociology_new_roots.csv", limit=limit)
+    roots_by_sphere = {
+        "economy": load_roots_from_csv(ROOTS_RESULTS_DIR / "economy_new_roots.csv", limit=limit),
+        "ecology": load_roots_from_csv(ROOTS_RESULTS_DIR / "ecology_new_roots.csv", limit=limit),
+        "sociology": load_roots_from_csv(ROOTS_RESULTS_DIR / "sociology_new_roots.csv", limit=limit),
+    }
 
     # freq_5 = count_root_frequencies(text_5, roots)
     # freq_7 = count_root_frequencies(text_7, roots)
     # freq_CR = count_root_frequencies(text_CR, roots)
 
-    for sphere in ["ecology", "economy", "sociology"]:
-        roots = locals()[sphere]
-
-        for transcript in ["text_5", "text_7", "text_CR"]:
-            text = locals()[transcript]
+    for sphere, roots in roots_by_sphere.items():
+        for transcript, text in transcript_texts.items():
 
             freq = count_root_frequencies(text, roots)
-            filename = f"frequency_{sphere}_in_{transcript}_limit_{limit}.csv"
+            output_path = FREQUENCY_RESULTS_DIR / f"frequency_{sphere}_in_{transcript}_limit_{limit}.csv"
 
-            with open(filename, "w", newline='', encoding='utf-8') as csvfile:
+            with open(output_path, "w", newline='', encoding='utf-8') as csvfile:
                 writer = csv.writer(csvfile)
                 writer.writerow(["Root", "Frequency"])
                 for root, freq_count in sorted(freq.items(), key=lambda item: item[1], reverse=True):
                     writer.writerow([root, freq_count])
+
+
+if __name__ == "__main__":
+    run_frequency_count()

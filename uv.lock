@@ -53,7 +53,7 @@ wheels = [
 [[package]]
 name = "morpheme-analysis"
 version = "0.1.0"
-source = { virtual = "." }
+source = { editable = "." }
 dependencies = [
     { name = "compound-split" },
     { name = "hanta" },

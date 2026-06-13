@@ -19,63 +19,71 @@ uv run pytest
 
 ## Run Configurations
 
-### `main`
+### Current Analyzer
 
 ```bash
-PYTHONUNBUFFERED=1 uv run python main.py
+PYTHONUNBUFFERED=1 uv run morpheme-analysis analyze current
 ```
 
 Runs the current morpheme analyzer against the no-subcluster input files under
-`inputs_no_subclaster_names/`.
+`data/inputs_no_subcluster_names/`.
 
 Outputs:
 
-- `ecology_new_roots.csv`
-- `economy_new_roots.csv`
-- `sociology_new_roots.csv`
-- `all_sources_new_roots.csv`
+- `results/roots/ecology_new_roots.csv`
+- `results/roots/economy_new_roots.csv`
+- `results/roots/sociology_new_roots.csv`
+- `results/roots/all_sources_new_roots.csv`
 
-### `main_v1`
-
-```bash
-PYTHONUNBUFFERED=1 uv run python main_v1.py
-```
-
-Runs the first analyzer variant over the files in `inputs/`.
-
-Outputs per-input CSVs under `morphology_stats_v1/`, plus
-`morphology_stats_v1/all_sources.csv`.
-
-### `main_v2`
+### Analyzer V1
 
 ```bash
-PYTHONUNBUFFERED=1 uv run python main_v2.py
+PYTHONUNBUFFERED=1 uv run morpheme-analysis analyze v1
 ```
 
-Runs the second analyzer variant over the files in `inputs/`, then aggregates
+Runs the first analyzer variant over the files in `data/inputs/`.
+
+Outputs per-input CSVs under `results/morphology_stats_v1/`, plus
+`results/morphology_stats_v1/all_sources.csv`.
+
+### Analyzer V2
+
+```bash
+PYTHONUNBUFFERED=1 uv run morpheme-analysis analyze v2
+```
+
+Runs the second analyzer variant over the files in `data/inputs/`, then aggregates
 ecology, economy, sociology, and full-corpus results.
 
-Outputs per-input CSVs and aggregate CSVs under `morphology_stats/`.
+Outputs per-input CSVs and aggregate CSVs under `results/morphology_stats/`.
 
-### `count_frequencies`
+### Frequency Counting
 
 ```bash
-PYTHONUNBUFFERED=1 uv run --project . --directory frequency_count python count_frequencies.py
+PYTHONUNBUFFERED=1 uv run morpheme-analysis frequencies --limit 4
 ```
 
-Runs root-frequency counting from the `frequency_count/` working directory, matching
-the PyCharm config. It reads transcript text files in `frequency_count/` and root CSVs
-from the project root.
+Runs root-frequency counting. It reads transcript text files from `data/transcripts/`
+and root CSVs from `results/roots/`.
 
-Outputs frequency CSVs in `frequency_count/` for ecology, economy, and sociology.
-The script currently uses `limit = 4`.
+Outputs frequency CSVs in `results/frequency_count/` for ecology, economy, and
+sociology.
 
-### `test_split`
+### Split Diagnostic
 
 ```bash
-PYTHONUNBUFFERED=1 uv run python test_split.py
+PYTHONUNBUFFERED=1 uv run morpheme-analysis diagnostic split
 ```
 
 Runs the split diagnostic script PyCharm was configured for. This is not a proper
 pytest assertion suite yet; it prints expected and actual values and reports `PASS` or
 `FAIL` manually.
+
+### Midword Diagnostic
+
+```bash
+PYTHONUNBUFFERED=1 uv run morpheme-analysis diagnostic midword
+```
+
+Runs the midword chunk diagnostic script. Like the split diagnostic, it is print-based
+and not a proper pytest assertion suite yet.

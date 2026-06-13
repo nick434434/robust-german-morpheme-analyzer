@@ -1,4 +1,11 @@
-from main import GermanMorphemeAnalyzer
+try:
+    from morpheme_analysis.analyzer import GermanMorphemeAnalyzer
+except ModuleNotFoundError:
+    from pathlib import Path
+    import sys
+
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+    from morpheme_analysis.analyzer import GermanMorphemeAnalyzer
 
 def test_midword_chunk():
     analyzer = GermanMorphemeAnalyzer()
@@ -21,7 +28,12 @@ def test_midword_chunk():
         print(f"Chunk: {chunk}")
         print(f"Result: {result}")
         # Check if types match (ignoring unknown for now or checking it explicitly)
-        result_types = [r[1] for r in result]
+        prefixes, interfixes, suffixes = result
+        result_types = (
+            ["Prefix" for _ in prefixes]
+            + ["Interfix" for _ in interfixes]
+            + ["Suffix" for _ in suffixes]
+        )
         expected_types = [e[1] for e in expected]
         if result_types == expected_types:
              print("PASS (Types match)")

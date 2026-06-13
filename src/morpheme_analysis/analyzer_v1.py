@@ -6,6 +6,12 @@ from collections import defaultdict, Counter
 from compound_split import char_split
 
 from HanTa import HanoverTagger as ht
+
+try:
+    from .paths import ANALYZER_INPUT_NAMES, INPUTS_DIR, MORPHOLOGY_STATS_V1_DIR
+except ImportError:
+    from paths import ANALYZER_INPUT_NAMES, INPUTS_DIR, MORPHOLOGY_STATS_V1_DIR
+
 tagger = ht.HanoverTagger('morphmodel_ger.pgz')
 
 
@@ -217,38 +223,29 @@ class AdvancedAnalyzer(GermanMorphemeAnalyzer):
         return [(best_split[1], 'Root'), (best_split[2], 'Root')]
 
 
-# --- Execution ---
-if __name__ == "__main__":
-    # Initialize
+def run_analysis():
     analyzer = AdvancedAnalyzer()
+    MORPHOLOGY_STATS_V1_DIR.mkdir(parents=True, exist_ok=True)
 
     full_corpus = ""
+    text = ""
 
-    for filename in [
-        # Ökologie
-        "dauer",
-        "qualitaet",
-        "prozess",
-        "umwelt",
-        # Wirtschaft
-        "kraft",
-        "materialeneigenschaft",
-        "betriebsprozess",
-        "qualifikation",
-        # Gesellschaftskultur
-        "ausdauer",
-        "eigenschaft",
-        "teilnahme",
-        "guete",
-    ]:
-        # Process
-        print(f"Reading inputs/{filename}.txt...")
-        with open(f"inputs/{filename}.txt", "r", encoding="utf-8") as f:
+    for filename in ANALYZER_INPUT_NAMES:
+        input_path = INPUTS_DIR / f"{filename}.txt"
+        output_path = MORPHOLOGY_STATS_V1_DIR / f"{filename}.csv"
+
+        print(f"Reading {input_path}...")
+        with open(input_path, "r", encoding="utf-8") as f:
             text = f.read()
             full_corpus += text
 
         analyzer.process_text(text)
-        analyzer.export_csv(f"morphology_stats_v1/{filename}.csv")
+        analyzer.export_csv(output_path)
 
     analyzer.process_text(text)
-    analyzer.export_csv(f"morphology_stats_v1/all_sources.csv")
+    analyzer.export_csv(MORPHOLOGY_STATS_V1_DIR / "all_sources.csv")
+
+
+# --- Execution ---
+if __name__ == "__main__":
+    run_analysis()

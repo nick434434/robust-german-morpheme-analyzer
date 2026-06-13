@@ -6,6 +6,12 @@ from collections import defaultdict, Counter
 from compound_split import char_split
 
 from HanTa import HanoverTagger as ht
+
+try:
+    from .paths import ANALYZER_INPUT_NAMES, INPUTS_DIR, MORPHOLOGY_STATS_DIR
+except ImportError:
+    from paths import ANALYZER_INPUT_NAMES, INPUTS_DIR, MORPHOLOGY_STATS_DIR
+
 tagger = ht.HanoverTagger('morphmodel_ger.pgz')
 
 
@@ -228,10 +234,9 @@ class AdvancedAnalyzer(GermanMorphemeAnalyzer):
         return [(stem.capitalize(), "Root")]
 
 
-# --- Execution ---
-if __name__ == "__main__":
-    # Initialize
+def run_analysis():
     analyzer = AdvancedAnalyzer()
+    MORPHOLOGY_STATS_DIR.mkdir(parents=True, exist_ok=True)
 
     full_corpus = ""
     ecology_sphere = ""
@@ -239,26 +244,12 @@ if __name__ == "__main__":
     sociology_sphere = ""
     counter = 0
 
-    for filename in [
-        # Ökologie
-        "dauer",
-        "qualitaet",
-        "prozess",
-        "umwelt",
-        # Wirtschaft
-        "kraft",
-        "materialeneigenschaft",
-        "betriebsprozess",
-        "qualifikation",
-        # Gesellschaftskultur
-        "ausdauer",
-        "eigenschaft",
-        "teilnahme",
-        "guete",
-    ]:
-        # Process
-        print(f"Reading inputs/{filename}.txt...")
-        with open(f"inputs/{filename}.txt", "r", encoding="utf-8") as f:
+    for filename in ANALYZER_INPUT_NAMES:
+        input_path = INPUTS_DIR / f"{filename}.txt"
+        output_path = MORPHOLOGY_STATS_DIR / f"{filename}.csv"
+
+        print(f"Reading {input_path}...")
+        with open(input_path, "r", encoding="utf-8") as f:
             text = f.read()
             full_corpus += text
             ecology_sphere = ecology_sphere + (text if counter < 4 else "")
@@ -267,16 +258,21 @@ if __name__ == "__main__":
             counter += 1
 
         analyzer.process_text(text)
-        analyzer.export_csv(f"morphology_stats/{filename}.csv")
+        analyzer.export_csv(output_path)
 
     analyzer.process_text(ecology_sphere)
-    analyzer.export_csv(f"morphology_stats/ecology.csv")
+    analyzer.export_csv(MORPHOLOGY_STATS_DIR / "ecology.csv")
 
     analyzer.process_text(economy_sphere)
-    analyzer.export_csv(f"morphology_stats/economy.csv")
+    analyzer.export_csv(MORPHOLOGY_STATS_DIR / "economy.csv")
 
     analyzer.process_text(sociology_sphere)
-    analyzer.export_csv(f"morphology_stats/sociology.csv")
+    analyzer.export_csv(MORPHOLOGY_STATS_DIR / "sociology.csv")
 
     analyzer.process_text(full_corpus)
-    analyzer.export_csv(f"morphology_stats/all_sources.csv")
+    analyzer.export_csv(MORPHOLOGY_STATS_DIR / "all_sources.csv")
+
+
+# --- Execution ---
+if __name__ == "__main__":
+    run_analysis()

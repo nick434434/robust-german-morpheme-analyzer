@@ -11,15 +11,27 @@ dependencies = [
     "ordered-set==4.1.0",
 ]
 
+[project.scripts]
+morpheme-analysis = "morpheme_analysis.cli:main"
+
+[build-system]
+requires = [
+    "hatchling",
+]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = [
+    "src/morpheme_analysis",
+    "scripts",
+]
+
 [dependency-groups]
 dev = [
     "basedpyright",
     "pytest",
     "ruff",
 ]
-
-[tool.uv]
-package = false
 
 [tool.ruff]
 line-length = 100
@@ -28,13 +40,8 @@ extend-exclude = [
     "*.csv",
     "*.txt",
     "*.zip",
-    "frequency_count/*.csv",
-    "inputs",
-    "inputs_no_subclaster_names",
-    "morphology_stats",
-    "morphology_stats_no_subclaster_names",
-    "morphology_stats_v1",
-    "morphology_stats_v2",
+    "data",
+    "results",
 ]
 
 [tool.ruff.lint]
@@ -76,18 +83,14 @@ line-ending = "lf"
 pythonVersion = "3.12"
 typeCheckingMode = "standard"
 include = [
-    "*.py",
-    "frequency_count/*.py",
+    "scripts/*.py",
+    "src/**/*.py",
 ]
 exclude = [
     "**/__pycache__",
     ".venv",
-    "inputs",
-    "inputs_no_subclaster_names",
-    "morphology_stats",
-    "morphology_stats_no_subclaster_names",
-    "morphology_stats_v1",
-    "morphology_stats_v2",
+    "data",
+    "results",
 ]
 reportAny = false
 reportExplicitAny = false
