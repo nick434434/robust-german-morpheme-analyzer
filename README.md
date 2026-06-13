@@ -2,6 +2,11 @@
 
 [![Checks](https://github.com/nick434434/robust-german-morpheme-analyzer/actions/workflows/checks.yml/badge.svg)](https://github.com/nick434434/robust-german-morpheme-analyzer/actions/workflows/checks.yml)
 
+## Авторы
+
+* Теселкина Ольга Евгеньевна (oteselkina@sfedu.ru)
+* Ковалев Никита Евгеньевич (nick.tommybee37@gmail.com)
+
 Программа Robust German Morpheme Analyzer на языке программирования Python предназначена для автоматизированного
 морфемного анализа немецкого языка, в рамках которого все выявленные языковые единицы сегментируются на корневые
 и аффиксальные морфемы. Такая сегментация позволяет в дальнейшем произвести подсчёт частотности употребления

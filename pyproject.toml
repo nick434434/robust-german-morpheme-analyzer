@@ -4,6 +4,10 @@ version = "0.1.0"
 description = "German morpheme analysis scripts and supporting datasets."
 readme = "README.md"
 requires-python = ">=3.12"
+authors = [
+    { name = "Теселкина Ольга Евгеньевна", email = "oteselkina@sfedu.ru" },
+    { name = "Ковалев Никита Евгеньевич", email = "nick.tommybee37@gmail.com" },
+]
 dependencies = [
     "compound-split==1.0.2",
     "HanTa==1.1.2",
