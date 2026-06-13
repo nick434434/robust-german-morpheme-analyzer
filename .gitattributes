@@ -1,0 +1,19 @@
+# Let Git manage text normalization generally.
+* text=auto
+
+# Keep source/config files LF. This is the modern Python/project norm.
+*.py text eol=lf
+*.toml text eol=lf
+*.md text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.json text eol=lf
+*.gitignore text eol=lf
+*.gitattributes text eol=lf
+
+# Keep user-facing data files Windows-friendly.
+*.txt text eol=crlf
+*.csv text eol=crlf
+
+# Binary artifacts.
+*.zip binary
