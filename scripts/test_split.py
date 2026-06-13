@@ -7,12 +7,13 @@ except ModuleNotFoundError:
     sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
     from morpheme_analysis.analyzer import GermanMorphemeAnalyzer
 
+
 def test_splitter():
     analyzer = GermanMorphemeAnalyzer()
-    
+
     # Add some specific roots for testing if not already there
     analyzer.known_roots.add("bahn")
-    
+
     test_cases = [
         # ("autobahn", ["auto", "bahn"]),
         # ("kraftwerk", ["kraft", "werk"]),
@@ -22,7 +23,7 @@ def test_splitter():
         # ("sommerzeit", ["sommer", "zeit"]),
         ("umweltverträglichkeitsstudie", ["umwelt", "verträglichkeits", "studie"]),
     ]
-    
+
     for word, expected in test_cases:
         result = analyzer.split_based_on_known(word)
         print(f"Word: {word}")
@@ -33,6 +34,7 @@ def test_splitter():
         else:
             print("FAIL")
         print("-" * 20)
+
 
 if __name__ == "__main__":
     test_splitter()

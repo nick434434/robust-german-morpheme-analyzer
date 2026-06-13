@@ -1,6 +1,5 @@
 import re
 import csv
-import sys
 from collections import defaultdict, Counter
 
 from compound_split import char_split
@@ -12,7 +11,7 @@ try:
 except ImportError:
     from paths import ANALYZER_INPUT_NAMES, INPUTS_DIR, MORPHOLOGY_STATS_V1_DIR
 
-tagger = ht.HanoverTagger('morphmodel_ger.pgz')
+tagger = ht.HanoverTagger("morphmodel_ger.pgz")
 
 
 class GermanMorphemeAnalyzer:
@@ -25,52 +24,206 @@ class GermanMorphemeAnalyzer:
 
         # Inseparable and Separable Prefixes
         self.prefixes = {
-            'be', 'emp', 'ent', 'er', 'ge', 'miss', 'ver', 'zer',  # Inseparable
-            'ab', 'an', 'auf', 'aus', 'bei', 'da', 'dar', 'ein',  # Separable
-            'empor', 'fort', 'heim', 'her', 'hin', 'los', 'mit',
-            'nach', 'vor', 'weg', 'zu', 'zusammen', 'un', 'ur',
-            'anti', 'auto', 'bio', 'co', 'de', 'dis', 'ex', 'hyper',  # Neo-classical
-            'inter', 'neo', 'non', 'post', 'pre', 'pro', 're', 'sub',
-            'super', 'tele', 'trans', 'ultra'
+            "be",
+            "emp",
+            "ent",
+            "er",
+            "ge",
+            "miss",
+            "ver",
+            "zer",  # Inseparable
+            "ab",
+            "an",
+            "auf",
+            "aus",
+            "bei",
+            "da",
+            "dar",
+            "ein",  # Separable
+            "empor",
+            "fort",
+            "heim",
+            "her",
+            "hin",
+            "los",
+            "mit",
+            "nach",
+            "vor",
+            "weg",
+            "zu",
+            "zusammen",
+            "un",
+            "ur",
+            "anti",
+            "auto",
+            "bio",
+            "co",
+            "de",
+            "dis",
+            "ex",
+            "hyper",  # Neo-classical
+            "inter",
+            "neo",
+            "non",
+            "post",
+            "pre",
+            "pro",
+            "re",
+            "sub",
+            "super",
+            "tele",
+            "trans",
+            "ultra",
         }
 
         # Suffixes (Derivational and Inflectional)
         self.suffixes = {
             # Noun forming
-            'ung', 'heit', 'keit', 'schaft', 'tum', 'nis', 'chen', 'lein',
-            'ling', 'sal', 'erei', 'ität', 'tion', 'ismus', 'ist', 'logie',
-            'ment', 'ur', 'enz', 'anz',
+            "ung",
+            "heit",
+            "keit",
+            "schaft",
+            "tum",
+            "nis",
+            "chen",
+            "lein",
+            "ling",
+            "sal",
+            "erei",
+            "ität",
+            "tion",
+            "ismus",
+            "ist",
+            "logie",
+            "ment",
+            "ur",
+            "enz",
+            "anz",
             # Adjective forming
-            'bar', 'haft', 'isch', 'sam', 'los', 'lich', 'ig', 'en', 'ern',
-            'iv', 'al', 'ell', 'ant', 'abel',
+            "bar",
+            "haft",
+            "isch",
+            "sam",
+            "los",
+            "lich",
+            "ig",
+            "en",
+            "ern",
+            "iv",
+            "al",
+            "ell",
+            "ant",
+            "abel",
             # Inflectional (Grammar)
-            'end', 'est', 'ten', 'tet', 'test', 'ens',
-            'en', 'er', 'es', 'te', 'st', 'et', 'e', 's', 'n', 't'
+            "end",
+            "est",
+            "ten",
+            "tet",
+            "test",
+            "ens",
+            "en",
+            "er",
+            "es",
+            "te",
+            "st",
+            "et",
+            "e",
+            "s",
+            "n",
+            "t",
         }
 
         # Linking elements (Interfixes)
-        self.interfixes = {'s', 'es', 'n', 'en', 'er'}
+        self.interfixes = {"s", "es", "n", "en", "er"}
 
         # Stopwords (Function words that are not interesting for morpheme analysis)
         self.stopwords = {
-            'der', 'die', 'das', 'und', 'ist', 'in', 'den', 'von', 'zu', 'für',
-            'mit', 'sich', 'des', 'auf', 'im', 'dass', 'nicht', 'eine', 'ein'
+            "der",
+            "die",
+            "das",
+            "und",
+            "ist",
+            "in",
+            "den",
+            "von",
+            "zu",
+            "für",
+            "mit",
+            "sich",
+            "des",
+            "auf",
+            "im",
+            "dass",
+            "nicht",
+            "eine",
+            "ein",
         }
 
         # Load Dictionary for Compound Splitting
         # In a real scenario, load from a large file (e.g., 100k nouns).
         # Here we seed it with some common roots for demonstration.
         self.known_roots = {
-            'haus', 'tür', 'auto', 'bahn', 'rast', 'stätte', 'dampf',
-            'schiff', 'fahrt', 'gesellschaft', 'kapitän', 'donau',
-            'arbeit', 'zeit', 'tag', 'nacht', 'licht', 'sommer', 'winter',
-            'kind', 'garten', 'schule', 'lehrer', 'freund', 'feind',
-            'liebe', 'brief', 'wasser', 'weg', 'brot', 'butter',
-            'bröt', 'chen', 'flug', 'zeug', 'kraft', 'werk',
-            'hoch', 'tief', 'lang', 'kurz', 'groß', 'klein',
-            "kosmos", "logie", "bio", "technik", "auto", "mobil",
-            "telefon", "buch", "handlung", "spiel", "platz",
-            "last", "klima", "schutz", "plan", "stadt", "land", "halt",
+            "haus",
+            "tür",
+            "auto",
+            "bahn",
+            "rast",
+            "stätte",
+            "dampf",
+            "schiff",
+            "fahrt",
+            "gesellschaft",
+            "kapitän",
+            "donau",
+            "arbeit",
+            "zeit",
+            "tag",
+            "nacht",
+            "licht",
+            "sommer",
+            "winter",
+            "kind",
+            "garten",
+            "schule",
+            "lehrer",
+            "freund",
+            "feind",
+            "liebe",
+            "brief",
+            "wasser",
+            "weg",
+            "brot",
+            "butter",
+            "bröt",
+            "chen",
+            "flug",
+            "zeug",
+            "kraft",
+            "werk",
+            "hoch",
+            "tief",
+            "lang",
+            "kurz",
+            "groß",
+            "klein",
+            "kosmos",
+            "logie",
+            "bio",
+            "technik",
+            "auto",
+            "mobil",
+            "telefon",
+            "buch",
+            "handlung",
+            "spiel",
+            "platz",
+            "last",
+            "klima",
+            "schutz",
+            "plan",
+            "stadt",
+            "land",
+            "halt",
         }
         if dictionary_path:
             self.load_dictionary(dictionary_path)
@@ -80,7 +233,7 @@ class GermanMorphemeAnalyzer:
 
     def load_dictionary(self, path):
         try:
-            with open(path, 'r', encoding='utf-8') as f:
+            with open(path, "r", encoding="utf-8") as f:
                 for line in f:
                     word = line.strip().lower()
                     if len(word) > 2:
@@ -91,7 +244,7 @@ class GermanMorphemeAnalyzer:
 
     def clean_word(self, word):
         """Normalization: remove punctuation, keep umlauts."""
-        return re.sub(r'[^\wäöüÄÖÜß]', '', word)
+        return re.sub(r"[^\wäöüÄÖÜß]", "", word)
 
     def split_compound(self, stem):
         """
@@ -111,7 +264,7 @@ class GermanMorphemeAnalyzer:
         for i in range(3, len(stem) - 2):  # Min root length constraint
             left = stem[:i]
             right = stem[i:]
-            interfix = ''
+            interfix = ""
             remainder = right
 
             # Check for direct split
@@ -120,18 +273,18 @@ class GermanMorphemeAnalyzer:
                 # We need to verify if 'right' can be analyzed further
                 sub_analysis = self.split_compound(right)
                 if sub_analysis:
-                    return + sub_analysis
+                    return +sub_analysis
 
                 # Scenario B: Interfix (Liebe-s-brief)
                 # Check if 'right' starts with an interfix
                 for ifix in self.interfixes:
                     if right.lower().startswith(ifix):
-                        possible_remainder = right[len(ifix):]
+                        possible_remainder = right[len(ifix) :]
                         if len(possible_remainder) > 2:
                             sub_analysis_ifix = self.split_compound(possible_remainder)
                             if sub_analysis_ifix:
                                 # Found valid split with interfix
-                                return + sub_analysis_ifix
+                                return +sub_analysis_ifix
 
         # Fallback: If no split found, treat as Unknown Root (or valid root missing from dict)
         return
@@ -155,8 +308,10 @@ class GermanMorphemeAnalyzer:
                 if word.endswith(suf):
                     # Constraint: Stem must remain valid length
                     if len(word) - len(suf) >= 3:
-                        segments.insert(0, (suf, 'Suffix'))  # Prepend to list (we are working backwards)
-                        word = word[:-len(suf)]
+                        segments.insert(
+                            0, (suf, "Suffix")
+                        )  # Prepend to list (we are working backwards)
+                        word = word[: -len(suf)]
                         matched_suffix = True
                         break
 
@@ -169,8 +324,8 @@ class GermanMorphemeAnalyzer:
             for pre in sorted(self.prefixes, key=len, reverse=True):
                 if word.startswith(pre):
                     if len(word) - len(pre) >= 3:
-                        prefix_segments.append((pre, 'Prefix'))
-                        word = word[len(pre):]
+                        prefix_segments.append((pre, "Prefix"))
+                        word = word[len(pre) :]
                         matched_prefix = True
                         break
 
@@ -199,7 +354,7 @@ class GermanMorphemeAnalyzer:
                 self.stats[m_type][morph] += 1
 
     def export_csv(self, output_path):
-        with open(output_path, 'w', newline='', encoding='utf-8') as csvfile:
+        with open(output_path, "w", newline="", encoding="utf-8") as csvfile:
             fieldnames = ["Morpheme", "Type", "Count"]
             writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
             writer.writeheader()
@@ -207,11 +362,7 @@ class GermanMorphemeAnalyzer:
             # Sort output: Type alphabetically, then Count descending
             for m_type in sorted(self.stats.keys()):
                 for morph, count in self.stats[m_type].most_common():
-                    writer.writerow({
-                        'Morpheme': morph,
-                        'Type': m_type,
-                        'Count': count
-                    })
+                    writer.writerow({"Morpheme": morph, "Type": m_type, "Count": count})
         print(f"Analysis complete. Data written to {output_path}")
 
 
@@ -220,7 +371,7 @@ class AdvancedAnalyzer(GermanMorphemeAnalyzer):
         # CharSplit returns probabilities, we take the best split
         best_split = char_split.split_compound(stem)[0]
         # Returns (score, left, right)
-        return [(best_split[1], 'Root'), (best_split[2], 'Root')]
+        return [(best_split[1], "Root"), (best_split[2], "Root")]
 
 
 def run_analysis():

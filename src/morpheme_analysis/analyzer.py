@@ -19,7 +19,7 @@ try:
 except ImportError:
     from paths import INPUTS_NO_SUBCLUSTER_DIR, ROOTS_RESULTS_DIR
 
-tagger = ht.HanoverTagger('morphmodel_ger.pgz')
+tagger = ht.HanoverTagger("morphmodel_ger.pgz")
 
 
 class GermanMorphemeAnalyzer:
@@ -32,52 +32,194 @@ class GermanMorphemeAnalyzer:
 
         # Inseparable and Separable Prefixes
         self.prefixes = {
-            'be', 'emp', 'ent', 'er', 'ge', 'miss', 'ver', 'zer',  # Inseparable
-            'ab', 'an', 'auf', 'aus', 'bei', 'da', 'dar', 'ein',  # Separable
-            'unter', 'empor', 'fort', 'heim', 'her', 'hin', 'los', 'mit',
-            'nach', 'vor', 'weg', 'zu', 'zusammen', 'un', 'ur', "über",
-            'anti', 'auto', 'bio', 'co', 'de', 'dis', 'ex', 'hyper',  # Neo-classical
-            'inter', 'neo', 'non', 'post', 'pre', 'pro', 're', 'sub',
-            'super', 'tele', 'trans', 'ultra'
+            # Inseparable
+            "be",
+            "emp",
+            "ent",
+            "er",
+            "ge",
+            "miss",
+            "ver",
+            "zer",
+            # Separable
+            "ab",
+            "an",
+            "auf",
+            "aus",
+            "bei",
+            "da",
+            "dar",
+            "ein",
+            "unter",
+            "empor",
+            "fort",
+            "heim",
+            "her",
+            "hin",
+            "los",
+            "mit",
+            "nach",
+            "vor",
+            "weg",
+            "zu",
+            "zusammen",
+            "un",
+            "ur",
+            "über",
+            "anti",
+            "auto",
+            "bio",
+            "co",
+            "de",
+            "dis",
+            "ex",
+            "hyper",
+            # Neo-classical
+            "inter",
+            "neo",
+            "non",
+            "post",
+            "pre",
+            "pro",
+            "re",
+            "sub",
+            "super",
+            "tele",
+            "trans",
+            "ultra",
         }
 
         # Suffixes (Derivational and Inflectional)
         self.suffixes = {
             # Noun forming
-            'ung', 'heit', 'keit', 'schaft', 'tum', 'nis', 'chen', 'lein',
-            'ling', 'sal', 'erei', 'ität', 'tion', 'ismus', 'ist', 'logie',
-            'ment', 'ur', 'enz', 'anz',
+            "ung",
+            "heit",
+            "keit",
+            "schaft",
+            "tum",
+            "nis",
+            "chen",
+            "lein",
+            "ling",
+            "sal",
+            "erei",
+            "ität",
+            "tion",
+            "ismus",
+            "ist",
+            "logie",
+            "ment",
+            "ur",
+            "enz",
+            "anz",
             # Adjective forming
-            'bar', 'haft', 'isch', 'sam', 'los', 'lich', 'ig', 'en', 'ern',
-            'iv', 'al', 'ell', 'ant', 'abel',
+            "bar",
+            "haft",
+            "isch",
+            "sam",
+            "los",
+            "lich",
+            "ig",
+            "en",
+            "ern",
+            "iv",
+            "al",
+            "ell",
+            "ant",
+            "abel",
             # Inflectional (Grammar)
-            'end', 'est', 'ten', 'tet', 'test', 'ens',
-            'en', 'er', 'es', 'te', 'st', 'et', 'e', 's', 'n', 't'
+            "end",
+            "est",
+            "ten",
+            "tet",
+            "test",
+            "ens",
+            "en",
+            "er",
+            "es",
+            "te",
+            "st",
+            "et",
+            "e",
+            "s",
+            "n",
+            "t",
         }
 
         # Linking elements (Interfixes)
-        self.interfixes = {'s', 'es', 'n', 'en', 'er'}
+        self.interfixes = {"s", "es", "n", "en", "er"}
 
         # Stopwords (Function words that are not interesting for morpheme analysis)
         self.stopwords = {
-            'der', 'die', 'das', 'und', 'ist', 'in', 'den', 'von', 'zu', 'für',
-            'mit', 'sich', 'des', 'auf', 'im', 'dass', 'nicht', 'eine', 'ein'
+            "der",
+            "die",
+            "das",
+            "und",
+            "ist",
+            "in",
+            "den",
+            "von",
+            "zu",
+            "für",
+            "mit",
+            "sich",
+            "des",
+            "auf",
+            "im",
+            "dass",
+            "nicht",
+            "eine",
+            "ein",
         }
 
         # Load Dictionary for Compound Splitting
         # In a real scenario, load from a large file (e.g., 100k nouns).
         # Here we seed it with some common roots for demonstration.
         self.known_roots = OrderedSet()
-        for root in  sorted(
+        for root in sorted(
             [
-                'haus', 'auto', 'dampf', 'schiff', 'fahrt',
-                'arbeit', 'zeit', 'tag', 'nacht', 'licht', 'sommer', 'winter',
-                'wasser', 'kraft', 'werk',
-                "kosmos", "logie", "bio", "technik", "auto", "mobil",
-                "telefon", "buch", "hand", "spiel", "platz",
-                "dauer", "qualität", "prozess", "welt",
-                "last", "schutz", "plan", "stadt", "land", "halt",
-                "linie", "konst", "energ", "ressource", "belast", "entwickl",
+                "haus",
+                "auto",
+                "dampf",
+                "schiff",
+                "fahrt",
+                "arbeit",
+                "zeit",
+                "tag",
+                "nacht",
+                "licht",
+                "sommer",
+                "winter",
+                "wasser",
+                "kraft",
+                "werk",
+                "kosmos",
+                "logie",
+                "bio",
+                "technik",
+                "auto",
+                "mobil",
+                "telefon",
+                "buch",
+                "hand",
+                "spiel",
+                "platz",
+                "dauer",
+                "qualität",
+                "prozess",
+                "welt",
+                "last",
+                "schutz",
+                "plan",
+                "stadt",
+                "land",
+                "halt",
+                "linie",
+                "konst",
+                "energ",
+                "ressource",
+                "belast",
+                "entwickl",
                 # Added from the v3 results
                 "umwelt",
                 "klima",
@@ -207,7 +349,7 @@ class GermanMorphemeAnalyzer:
                 "kampf",
             ],
             key=len,
-            reverse=True
+            reverse=True,
         ):
             self.known_roots.append(root)
 
@@ -216,7 +358,7 @@ class GermanMorphemeAnalyzer:
 
     def clean_word(self, word):
         """Normalization: remove punctuation (except hyphens, we process them manually), keep umlauts."""
-        return re.sub(r'[^\wäöüÄÖÜß-]', '', word)
+        return re.sub(r"[^\wäöüÄÖÜß-]", "", word)
 
     def split_based_on_known(self, word: str) -> tuple[list[str], list[str], list[str], list[str]]:
         """
@@ -277,18 +419,18 @@ class GermanMorphemeAnalyzer:
         midchunk_suffixes = []
         midchunk_interfixes = []
         for i in range(0, len(sorted_starts) - 1):
-            midchunk = word_lower[sorted_ends[i]:sorted_starts[i + 1]]
+            midchunk = word_lower[sorted_ends[i] : sorted_starts[i + 1]]
             pre, inter, suf = self.split_midword_chunk(midchunk)
             midchunk_prefixes.extend(pre)
             midchunk_interfixes.extend(inter)
             midchunk_suffixes.extend(suf)
 
         return (
-            [
-                word[sorted_starts[i]:sorted_ends[i]]
-                for i in range(len(sorted_starts))
-            ]
-        ), midchunk_prefixes, midchunk_interfixes, midchunk_suffixes
+            ([word[sorted_starts[i] : sorted_ends[i]] for i in range(len(sorted_starts))]),
+            midchunk_prefixes,
+            midchunk_interfixes,
+            midchunk_suffixes,
+        )
 
     def split_midword_chunk(self, chunk: str) -> tuple[list[str], list[str], list[str]]:
         """
@@ -314,7 +456,7 @@ class GermanMorphemeAnalyzer:
             for suf in sorted(self.suffixes, key=len, reverse=True):
                 if current.startswith(suf):
                     suffixes.append(suf)
-                    current = current[len(suf):]
+                    current = current[len(suf) :]
                     matched = True
                     break
             if not matched:
@@ -326,7 +468,7 @@ class GermanMorphemeAnalyzer:
             for ifix in sorted(self.interfixes, key=len, reverse=True):
                 if current.startswith(ifix):
                     interfixes.append(ifix)
-                    current = current[len(ifix):]
+                    current = current[len(ifix) :]
                     matched = True
                     break
             if not matched:
@@ -338,7 +480,7 @@ class GermanMorphemeAnalyzer:
             for pre in sorted(self.prefixes, key=len, reverse=True):
                 if current.startswith(pre):
                     prefixes.append(pre)
-                    current = current[len(pre):]
+                    current = current[len(pre) :]
                     matched = True
                     break
             if not matched:
@@ -365,7 +507,9 @@ class GermanMorphemeAnalyzer:
             return self.split_compound(best_split[1]) + self.split_compound(best_split[2])
         return [(stem.capitalize(), "Root")]
 
-    def strip_affixes(self, word) -> tuple[list[tuple[str, str]], list[tuple[str, str]], list[tuple[str, str]]]:
+    def strip_affixes(
+        self, word
+    ) -> tuple[list[tuple[str, str]], list[tuple[str, str]], list[tuple[str, str]]]:
         # Direct root match to exclude splitting the root accidentally
         # But restrict this to no more than 1-char length affixes
         # TODO: maybe extend to 2-char affixes
@@ -373,9 +517,9 @@ class GermanMorphemeAnalyzer:
             if root in word and len(word) - len(root) < 2:
                 if len(word) > len(root):
                     if word.startswith(root):
-                        return [], [(root.capitalize(), "Root")], [(word[len(root):], "Suffix")]
+                        return [], [(root.capitalize(), "Root")], [(word[len(root) :], "Suffix")]
                     elif word.endswith(root):
-                        return [(word[:-len(root)], "Prefix")], [(root.capitalize(), "Root")], []
+                        return [(word[: -len(root)], "Prefix")], [(root.capitalize(), "Root")], []
                 return [], [(root.capitalize(), "Root")], []
 
         # --- Step 1: Suffix Stripping ---
@@ -393,8 +537,9 @@ class GermanMorphemeAnalyzer:
                 if word.endswith(suf):
                     # Constraint: Stem must remain valid length
                     if len(word) - len(suf) >= 3:
-                        suffixes.insert(0, (suf, 'Suffix'))  # Prepend to list (we are working backwards)
-                        word = word[:-len(suf)]
+                        # Prepend to list (we are working backwards)
+                        suffixes.insert(0, (suf, "Suffix"))
+                        word = word[: -len(suf)]
                         matched_suffix = True
                         break
 
@@ -411,14 +556,18 @@ class GermanMorphemeAnalyzer:
             for pre in sorted(self.prefixes, key=len, reverse=True):
                 if word.startswith(pre):
                     if len(word) - len(pre) >= 3:
-                        prefixes.append((pre, 'Prefix'))
-                        word = word[len(pre):]
+                        prefixes.append((pre, "Prefix"))
+                        word = word[len(pre) :]
                         matched_prefix = True
                         break
 
         return prefixes, [(word.capitalize(), "Root")], suffixes
 
-    def analyze_word(self, original_word: str) -> tuple[list[tuple[str, str]], list[tuple[str, str]], list[tuple[str, str]], list[tuple[str, str]]]:
+    def analyze_word(
+        self, original_word: str
+    ) -> tuple[
+        list[tuple[str, str]], list[tuple[str, str]], list[tuple[str, str]], list[tuple[str, str]]
+    ]:
         """
         The Core Pipeline: Suffix Strip -> Prefix Strip -> Compound Split
         """
@@ -445,7 +594,9 @@ class GermanMorphemeAnalyzer:
 
         additional_parts = []
         for part in parts:
-            sub_parts, sub_prefixes, sub_interfixes, sub_suffixes = self.split_based_on_known(part[0])
+            sub_parts, sub_prefixes, sub_interfixes, sub_suffixes = self.split_based_on_known(
+                part[0]
+            )
             if len(sub_parts) > 1:
                 for sp in sub_parts:
                     additional_parts.append((sp, "Root"))
@@ -511,7 +662,11 @@ class GermanMorphemeAnalyzer:
 
             if "-" in clean:
                 for clean_word in clean.split("-"):
-                    if not clean_word or clean_word.lower() in self.stopwords or clean_word.isdigit():
+                    if (
+                        not clean_word
+                        or clean_word.lower() in self.stopwords
+                        or clean_word.isdigit()
+                    ):
                         continue
                     # Analyze
                     prefixes, stems, suffixes, interfixes = self.analyze_word(clean_word)
@@ -532,7 +687,7 @@ class GermanMorphemeAnalyzer:
                 self.stats[m_type][morph] += 1
 
     def export_csv(self, output_path):
-        with open(output_path, 'w', newline='', encoding='utf-8') as csvfile:
+        with open(output_path, "w", newline="", encoding="utf-8") as csvfile:
             fieldnames = ["Morpheme", "Type", "Count"]
             writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
             writer.writeheader()
@@ -540,11 +695,7 @@ class GermanMorphemeAnalyzer:
             # Sort output: Type alphabetically, then Count descending
             for m_type in sorted(self.stats.keys()):
                 for morph, count in self.stats[m_type].most_common():
-                    writer.writerow({
-                        'Morpheme': morph,
-                        'Type': m_type,
-                        'Count': count
-                    })
+                    writer.writerow({"Morpheme": morph, "Type": m_type, "Count": count})
         print(f"Analysis complete. Data written to {output_path}")
 
     def clean_stats(self):

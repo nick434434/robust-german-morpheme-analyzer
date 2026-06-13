@@ -8,13 +8,13 @@ except ImportError:
     from paths import FREQUENCY_RESULTS_DIR, ROOTS_RESULTS_DIR, TRANSCRIPTS_DIR
 
 
-def count_root_frequencies(text: str, roots: list[str]):
+def count_root_frequencies(text: str, roots: set[str]):
     """
     Count frequencies of given roots in the provided text.
     Returns a dictionary mapping root -> frequency.
     """
     # Normalize text to lowercase and split into words
-    words = re.findall(r'\b\w+\b', text.lower())
+    words = re.findall(r"\b\w+\b", text.lower())
 
     frequency_dict = defaultdict(int)
 
@@ -26,17 +26,21 @@ def count_root_frequencies(text: str, roots: list[str]):
     return dict(frequency_dict)
 
 
-def load_roots_from_csv(file_path: str, limit: int | None = None) -> list[str]:
+def load_roots_from_csv(file_path: str, limit: int | None = None) -> set[str]:
     """
     Load roots from a CSV file. Assumes one root per line.
     """
     roots = set()
-    with (open(file_path, newline='', encoding='utf-8') as csvfile):
+    with open(file_path, newline="", encoding="utf-8") as csvfile:
         reader = csv.reader(csvfile)
         for row in reader:
             if (
-                row and len(row) == 3 and row[1] == "Root"  # Ensure it's a root entry
-                and (limit is None or int(row[-1]) >= limit)  # Check limit if provided and the entry matches
+                row
+                and len(row) == 3
+                and row[1] == "Root"  # Ensure it's a root entry
+                and (
+                    limit is None or int(row[-1]) >= limit
+                )  # Check limit if provided and the entry matches
             ):
                 roots.add(row[0].strip().lower())
     return roots
@@ -59,7 +63,9 @@ def run_frequency_count(limit: int = 4):
     roots_by_sphere = {
         "economy": load_roots_from_csv(ROOTS_RESULTS_DIR / "economy_new_roots.csv", limit=limit),
         "ecology": load_roots_from_csv(ROOTS_RESULTS_DIR / "ecology_new_roots.csv", limit=limit),
-        "sociology": load_roots_from_csv(ROOTS_RESULTS_DIR / "sociology_new_roots.csv", limit=limit),
+        "sociology": load_roots_from_csv(
+            ROOTS_RESULTS_DIR / "sociology_new_roots.csv", limit=limit
+        ),
     }
 
     # freq_5 = count_root_frequencies(text_5, roots)
@@ -68,14 +74,17 @@ def run_frequency_count(limit: int = 4):
 
     for sphere, roots in roots_by_sphere.items():
         for transcript, text in transcript_texts.items():
-
             freq = count_root_frequencies(text, roots)
-            output_path = FREQUENCY_RESULTS_DIR / f"frequency_{sphere}_in_{transcript}_limit_{limit}.csv"
+            output_path = (
+                FREQUENCY_RESULTS_DIR / f"frequency_{sphere}_in_{transcript}_limit_{limit}.csv"
+            )
 
-            with open(output_path, "w", newline='', encoding='utf-8') as csvfile:
+            with open(output_path, "w", newline="", encoding="utf-8") as csvfile:
                 writer = csv.writer(csvfile)
                 writer.writerow(["Root", "Frequency"])
-                for root, freq_count in sorted(freq.items(), key=lambda item: item[1], reverse=True):
+                for root, freq_count in sorted(
+                    freq.items(), key=lambda item: item[1], reverse=True
+                ):
                     writer.writerow([root, freq_count])
 
 
