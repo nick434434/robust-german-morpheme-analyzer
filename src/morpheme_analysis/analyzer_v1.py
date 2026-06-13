@@ -3,14 +3,14 @@ import re
 from collections import Counter, defaultdict
 
 from compound_split import char_split
-from HanTa import HanoverTagger as ht
+from HanTa import HanoverTagger
 
 try:
     from .paths import ANALYZER_INPUT_NAMES, INPUTS_DIR, MORPHOLOGY_STATS_V1_DIR
 except ImportError:
     from paths import ANALYZER_INPUT_NAMES, INPUTS_DIR, MORPHOLOGY_STATS_V1_DIR
 
-tagger = ht.HanoverTagger("morphmodel_ger.pgz")
+tagger = HanoverTagger.HanoverTagger("morphmodel_ger.pgz")
 
 
 class GermanMorphemeAnalyzer:
@@ -254,15 +254,10 @@ class GermanMorphemeAnalyzer:
         if stem_lower in self.known_roots:
             return None
 
-        # Recursive Step: Try to split
-        best_split = None
-
         # Iterate split points from left to right
         for i in range(3, len(stem) - 2):  # Min root length constraint
             left = stem[:i]
             right = stem[i:]
-            interfix = ""
-            remainder = right
 
             # Check for direct split
             if left.lower() in self.known_roots:
@@ -290,7 +285,6 @@ class GermanMorphemeAnalyzer:
         """
         The Core Pipeline: Suffix Strip -> Prefix Strip -> Compound Split
         """
-        original_word = word
         word = word.lower()  # Work in lowercase for matching
 
         segments = []
@@ -302,38 +296,30 @@ class GermanMorphemeAnalyzer:
             matched_suffix = False
             # Sort suffixes by length (descending) to match 'igkeit' before 'keit'
             for suf in sorted(self.suffixes, key=len, reverse=True):
-                if word.endswith(suf):
-                    # Constraint: Stem must remain valid length
-                    if len(word) - len(suf) >= 3:
-                        segments.insert(
-                            0, (suf, "Suffix")
-                        )  # Prepend to list (we are working backwards)
-                        word = word[: -len(suf)]
-                        matched_suffix = True
-                        break
+                if word.endswith(suf) and len(word) - len(suf) >= 3:
+                    segments.insert(0, (suf, "Suffix"))  # Prepend to list (we are working backwards)
+                    word = word[: -len(suf)]
+                    matched_suffix = True
+                    break
 
-                        # --- Step 2: Prefix Stripping ---
+                    # --- Step 2: Prefix Stripping ---
         # Greedy left-to-right matching
         matched_prefix = True
         prefix_segments = []
         while matched_prefix:
             matched_prefix = False
             for pre in sorted(self.prefixes, key=len, reverse=True):
-                if word.startswith(pre):
-                    if len(word) - len(pre) >= 3:
-                        prefix_segments.append((pre, "Prefix"))
-                        word = word[len(pre) :]
-                        matched_prefix = True
-                        break
+                if word.startswith(pre) and len(word) - len(pre) >= 3:
+                    prefix_segments.append((pre, "Prefix"))
+                    word = word[len(pre) :]
+                    matched_prefix = True
+                    break
 
         # --- Step 3: Compound Splitting on the Stem ---
         # 'word' is now the stripped stem.
         stem_segments = self.split_compound(word)
 
-        # Combine all parts: Prefixes + Stem Components + Suffixes
-        full_analysis = prefix_segments + stem_segments + segments
-
-        return full_analysis
+        return prefix_segments + stem_segments + segments
 
     def process_text(self, text):
         tokens = text.split()

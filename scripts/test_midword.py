@@ -31,11 +31,7 @@ def test_midword_chunk():
         print(f"Result: {result}")
         # Check if types match (ignoring unknown for now or checking it explicitly)
         prefixes, interfixes, suffixes = result
-        result_types = (
-            ["Prefix" for _ in prefixes]
-            + ["Interfix" for _ in interfixes]
-            + ["Suffix" for _ in suffixes]
-        )
+        result_types = ["Prefix" for _ in prefixes] + ["Interfix" for _ in interfixes] + ["Suffix" for _ in suffixes]
         expected_types = [e[1] for e in expected]
         if result_types == expected_types:
             print("PASS (Types match)")

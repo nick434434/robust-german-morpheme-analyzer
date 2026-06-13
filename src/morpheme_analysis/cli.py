@@ -1,5 +1,10 @@
 import argparse
 
+from scripts.test_midword import test_midword_chunk
+from scripts.test_split import test_splitter
+
+from . import analyzer, analyzer_v1, analyzer_v2, frequency
+
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="morpheme-analysis")
@@ -35,33 +40,21 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.command == "analyze":
         if args.mode == "current":
-            from . import analyzer
-
             analyzer.run_analysis()
         elif args.mode == "v1":
-            from . import analyzer_v1
-
             analyzer_v1.run_analysis()
         elif args.mode == "v2":
-            from . import analyzer_v2
-
             analyzer_v2.run_analysis()
         return 0
 
     if args.command == "frequencies":
-        from . import frequency
-
         frequency.run_frequency_count(limit=args.limit)
         return 0
 
     if args.command == "diagnostic":
         if args.mode == "split":
-            from scripts.test_split import test_splitter
-
             test_splitter()
         elif args.mode == "midword":
-            from scripts.test_midword import test_midword_chunk
-
             test_midword_chunk()
         return 0
 

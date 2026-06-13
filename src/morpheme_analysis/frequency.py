@@ -38,9 +38,7 @@ def load_roots_from_csv(file_path: str, limit: int | None = None) -> set[str]:
                 row
                 and len(row) == 3
                 and row[1] == "Root"  # Ensure it's a root entry
-                and (
-                    limit is None or int(row[-1]) >= limit
-                )  # Check limit if provided and the entry matches
+                and (limit is None or int(row[-1]) >= limit)  # Check limit if provided and the entry matches
             ):
                 roots.add(row[0].strip().lower())
     return roots
@@ -63,9 +61,7 @@ def run_frequency_count(limit: int = 4):
     roots_by_sphere = {
         "economy": load_roots_from_csv(ROOTS_RESULTS_DIR / "economy_new_roots.csv", limit=limit),
         "ecology": load_roots_from_csv(ROOTS_RESULTS_DIR / "ecology_new_roots.csv", limit=limit),
-        "sociology": load_roots_from_csv(
-            ROOTS_RESULTS_DIR / "sociology_new_roots.csv", limit=limit
-        ),
+        "sociology": load_roots_from_csv(ROOTS_RESULTS_DIR / "sociology_new_roots.csv", limit=limit),
     }
 
     # freq_5 = count_root_frequencies(text_5, roots)
@@ -75,16 +71,12 @@ def run_frequency_count(limit: int = 4):
     for sphere, roots in roots_by_sphere.items():
         for transcript, text in transcript_texts.items():
             freq = count_root_frequencies(text, roots)
-            output_path = (
-                FREQUENCY_RESULTS_DIR / f"frequency_{sphere}_in_{transcript}_limit_{limit}.csv"
-            )
+            output_path = FREQUENCY_RESULTS_DIR / f"frequency_{sphere}_in_{transcript}_limit_{limit}.csv"
 
             with open(output_path, "w", newline="", encoding="utf-8") as csvfile:
                 writer = csv.writer(csvfile)
                 writer.writerow(["Root", "Frequency"])
-                for root, freq_count in sorted(
-                    freq.items(), key=lambda item: item[1], reverse=True
-                ):
+                for root, freq_count in sorted(freq.items(), key=lambda item: item[1], reverse=True):
                     writer.writerow([root, freq_count])
 
 

@@ -9,7 +9,7 @@ import re
 from collections import Counter, defaultdict
 
 from compound_split import char_split
-from HanTa import HanoverTagger as ht
+from HanTa import HanoverTagger
 from ordered_set import OrderedSet
 
 try:
@@ -17,7 +17,7 @@ try:
 except ImportError:
     from paths import INPUTS_NO_SUBCLUSTER_DIR, ROOTS_RESULTS_DIR
 
-tagger = ht.HanoverTagger("morphmodel_ger.pgz")
+tagger = HanoverTagger.HanoverTagger("morphmodel_ger.pgz")
 
 
 class GermanMorphemeAnalyzer:
@@ -363,11 +363,12 @@ class GermanMorphemeAnalyzer:
         The process adheres to the following rules:
             - If a root from the self.known_roots is found, temporarily remove it from the word
             - In what's left of the word, run through the known roots again to find additional roots
-            - If a root was indeed found, split the word at the point where the second (by appearance in the word) root begins
+            - If a root was found, split the word at the point where the next (by appearance in the word) root begins
             - Apply this recursively until there is no more than 1 known root found in the remaining word
 
         :param word: The word to be split
-        :return: A list of potential single root words, followed by lists of prefixes, interfixes and suffixes found in mid-root chunks
+        :return: A list of potential single root words, followed by lists of prefixes, interfixes and suffixes
+            found in mid-root chunks
         """
         word_lower = word.lower()
 
@@ -405,8 +406,8 @@ class GermanMorphemeAnalyzer:
                 ends.add(m.end())
                 found.add(root)
 
-        sorted_starts = sorted(list(starts))
-        sorted_ends = sorted(list(ends))
+        sorted_starts = sorted(starts)
+        sorted_ends = sorted(ends)
 
         # We need at least 2 start positions to be able to split the word
         if len(sorted_starts) < 2:
@@ -504,9 +505,7 @@ class GermanMorphemeAnalyzer:
             return self.split_compound(best_split[1]) + self.split_compound(best_split[2])
         return [(stem.capitalize(), "Root")]
 
-    def strip_affixes(
-        self, word
-    ) -> tuple[list[tuple[str, str]], list[tuple[str, str]], list[tuple[str, str]]]:
+    def strip_affixes(self, word) -> tuple[list[tuple[str, str]], list[tuple[str, str]], list[tuple[str, str]]]:
         # Direct root match to exclude splitting the root accidentally
         # But restrict this to no more than 1-char length affixes
         # TODO: maybe extend to 2-char affixes
@@ -524,47 +523,43 @@ class GermanMorphemeAnalyzer:
         matched_suffix = True
         suffixes = []
         while matched_suffix:
-            ends_with_root = any([word.endswith(root) for root in self.known_roots])
+            ends_with_root = any(word.endswith(root) for root in self.known_roots)
             if ends_with_root:
                 break
 
             matched_suffix = False
             # Sort suffixes by length (descending) to match 'igkeit' before 'keit'
             for suf in sorted(self.suffixes, key=len, reverse=True):
-                if word.endswith(suf):
-                    # Constraint: Stem must remain valid length
-                    if len(word) - len(suf) >= 3:
-                        # Prepend to list (we are working backwards)
-                        suffixes.insert(0, (suf, "Suffix"))
-                        word = word[: -len(suf)]
-                        matched_suffix = True
-                        break
+                # 2nd Constraint: Stem must remain valid length
+                if word.endswith(suf) and len(word) - len(suf) >= 3:
+                    # Prepend to list (we are working backwards)
+                    suffixes.insert(0, (suf, "Suffix"))
+                    word = word[: -len(suf)]
+                    matched_suffix = True
+                    break
 
         # --- Step 2: Prefix Stripping ---
         # Greedy left-to-right matching
         matched_prefix = True
         prefixes = []
         while matched_prefix:
-            starts_with_root = any([word.startswith(root) for root in self.known_roots])
+            starts_with_root = any(word.startswith(root) for root in self.known_roots)
             if starts_with_root:
                 break
 
             matched_prefix = False
             for pre in sorted(self.prefixes, key=len, reverse=True):
-                if word.startswith(pre):
-                    if len(word) - len(pre) >= 3:
-                        prefixes.append((pre, "Prefix"))
-                        word = word[len(pre) :]
-                        matched_prefix = True
-                        break
+                if word.startswith(pre) and len(word) - len(pre) >= 3:
+                    prefixes.append((pre, "Prefix"))
+                    word = word[len(pre) :]
+                    matched_prefix = True
+                    break
 
         return prefixes, [(word.capitalize(), "Root")], suffixes
 
     def analyze_word(
         self, original_word: str
-    ) -> tuple[
-        list[tuple[str, str]], list[tuple[str, str]], list[tuple[str, str]], list[tuple[str, str]]
-    ]:
+    ) -> tuple[list[tuple[str, str]], list[tuple[str, str]], list[tuple[str, str]], list[tuple[str, str]]]:
         """
         The Core Pipeline: Suffix Strip -> Prefix Strip -> Compound Split
         """
@@ -580,29 +575,20 @@ class GermanMorphemeAnalyzer:
             parts = []
             for part in manual_parts:
                 parts.extend(self.split_compound(part))
-            for p in pref:
-                prefixes.append((p, "Prefix"))
-            for s in suff:
-                suffixes.append((s, "Suffix"))
-            for i in interf:
-                interfixes.append((i, "Interfix"))
+            prefixes.extend((p, "Prefix") for p in pref)
+            suffixes.extend((s, "Suffix") for s in suff)
+            interfixes.extend((i, "Interfix") for i in interf)
         else:
             parts = self.split_compound(word)
 
         additional_parts = []
         for part in parts:
-            sub_parts, sub_prefixes, sub_interfixes, sub_suffixes = self.split_based_on_known(
-                part[0]
-            )
+            sub_parts, sub_prefixes, sub_interfixes, sub_suffixes = self.split_based_on_known(part[0])
             if len(sub_parts) > 1:
-                for sp in sub_parts:
-                    additional_parts.append((sp, "Root"))
-                for p in sub_prefixes:
-                    prefixes.append((p, "Prefix"))
-                for i in sub_interfixes:
-                    interfixes.append((i, "Interfix"))
-                for s in sub_suffixes:
-                    suffixes.append((s, "Suffix"))
+                additional_parts.extend((sp, "Root") for sp in sub_parts)
+                prefixes.extend((p, "Prefix") for p in sub_prefixes)
+                interfixes.extend((i, "Interfix") for i in sub_interfixes)
+                suffixes.extend((s, "Suffix") for s in sub_suffixes)
             else:
                 additional_parts.append(part)
 
@@ -614,7 +600,7 @@ class GermanMorphemeAnalyzer:
             raise ValueError(f"Could not split compound: {original_word}")
 
         # If we have compound parts, analyze each part for affixes
-        for part, p_type in parts:
+        for part, _ in parts:
             pre, stem, suf = self.strip_affixes(part.lower())
             prefixes.extend(pre)
             stems.extend(stem)
@@ -659,11 +645,7 @@ class GermanMorphemeAnalyzer:
 
             if "-" in clean:
                 for clean_word in clean.split("-"):
-                    if (
-                        not clean_word
-                        or clean_word.lower() in self.stopwords
-                        or clean_word.isdigit()
-                    ):
+                    if not clean_word or clean_word.lower() in self.stopwords or clean_word.isdigit():
                         continue
                     # Analyze
                     prefixes, stems, suffixes, interfixes = self.analyze_word(clean_word)
