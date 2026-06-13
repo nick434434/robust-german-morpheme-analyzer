@@ -12,10 +12,7 @@ from compound_split import char_split
 from HanTa import HanoverTagger
 from ordered_set import OrderedSet
 
-try:
-    from .paths import INPUTS_NO_SUBCLUSTER_DIR, ROOTS_RESULTS_DIR
-except ImportError:
-    from paths import INPUTS_NO_SUBCLUSTER_DIR, ROOTS_RESULTS_DIR
+from .paths import INPUTS_NO_SUBCLUSTER_DIR, ROOTS_RESULTS_DIR
 
 tagger = HanoverTagger.HanoverTagger("morphmodel_ger.pgz")
 
@@ -172,7 +169,7 @@ class GermanMorphemeAnalyzer:
         # Load Dictionary for Compound Splitting
         # In a real scenario, load from a large file (e.g., 100k nouns).
         # Here we seed it with some common roots for demonstration.
-        self.known_roots = OrderedSet()
+        self.known_roots = OrderedSet(initial={})
         for root in sorted(
             [
                 "haus",

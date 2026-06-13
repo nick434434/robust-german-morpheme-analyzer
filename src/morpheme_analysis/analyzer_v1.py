@@ -5,10 +5,7 @@ from collections import Counter, defaultdict
 from compound_split import char_split
 from HanTa import HanoverTagger
 
-try:
-    from .paths import ANALYZER_INPUT_NAMES, INPUTS_DIR, MORPHOLOGY_STATS_V1_DIR
-except ImportError:
-    from paths import ANALYZER_INPUT_NAMES, INPUTS_DIR, MORPHOLOGY_STATS_V1_DIR
+from .paths import ANALYZER_INPUT_NAMES, INPUTS_DIR, MORPHOLOGY_STATS_V1_DIR
 
 tagger = HanoverTagger.HanoverTagger("morphmodel_ger.pgz")
 
@@ -243,43 +240,8 @@ class GermanMorphemeAnalyzer:
         """Normalization: remove punctuation, keep umlauts."""
         return re.sub(r"[^\wäöüÄÖÜß]", "", word)
 
-    def split_compound(self, stem):
-        """
-        Recursive dictionary-based compound splitter with Interfix handling.
-        Returns a list of tuples: [(segment, type),...]
-        """
-        stem_lower = stem.lower()
-
-        # Base Case: If the stem is in our dictionary, it's a Root.
-        if stem_lower in self.known_roots:
-            return None
-
-        # Iterate split points from left to right
-        for i in range(3, len(stem) - 2):  # Min root length constraint
-            left = stem[:i]
-            right = stem[i:]
-
-            # Check for direct split
-            if left.lower() in self.known_roots:
-                # Scenario A: Direct concatenation (Auto-bahn)
-                # We need to verify if 'right' can be analyzed further
-                sub_analysis = self.split_compound(right)
-                if sub_analysis:
-                    return +sub_analysis
-
-                # Scenario B: Interfix (Liebe-s-brief)
-                # Check if 'right' starts with an interfix
-                for ifix in self.interfixes:
-                    if right.lower().startswith(ifix):
-                        possible_remainder = right[len(ifix) :]
-                        if len(possible_remainder) > 2:
-                            sub_analysis_ifix = self.split_compound(possible_remainder)
-                            if sub_analysis_ifix:
-                                # Found valid split with interfix
-                                return +sub_analysis_ifix
-
-        # Fallback: If no split found, treat as Unknown Root (or valid root missing from dict)
-        return None
+    def split_compound(self, stem) -> list[tuple[str, str]]:
+        raise NotImplementedError
 
     def analyze_word(self, word):
         """
@@ -350,7 +312,7 @@ class GermanMorphemeAnalyzer:
 
 
 class AdvancedAnalyzer(GermanMorphemeAnalyzer):
-    def split_compound(self, stem):
+    def split_compound(self, stem) -> list[tuple[str, str]]:
         # CharSplit returns probabilities, we take the best split
         best_split = char_split.split_compound(stem)[0]
         # Returns (score, left, right)

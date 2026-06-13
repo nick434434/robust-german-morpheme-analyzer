@@ -1,11 +1,9 @@
 import csv
 import re
 from collections import defaultdict
+from pathlib import Path
 
-try:
-    from .paths import FREQUENCY_RESULTS_DIR, ROOTS_RESULTS_DIR, TRANSCRIPTS_DIR
-except ImportError:
-    from paths import FREQUENCY_RESULTS_DIR, ROOTS_RESULTS_DIR, TRANSCRIPTS_DIR
+from .paths import FREQUENCY_RESULTS_DIR, ROOTS_RESULTS_DIR, TRANSCRIPTS_DIR
 
 
 def count_root_frequencies(text: str, roots: set[str]):
@@ -26,7 +24,7 @@ def count_root_frequencies(text: str, roots: set[str]):
     return dict(frequency_dict)
 
 
-def load_roots_from_csv(file_path: str, limit: int | None = None) -> set[str]:
+def load_roots_from_csv(file_path: str | Path, limit: int | None = None) -> set[str]:
     """
     Load roots from a CSV file. Assumes one root per line.
     """
